@@ -112,7 +112,7 @@ export const moreStats = {
                     highway: mpg_data.filter((item) => item.year === key).reduce((a,b) => (b.hybrid) ? a+b.highway_mpg : a, 0)/
                         mpg_data.filter((item) => item.year === key).filter((item) => item.hybrid).length
                 },
-                nonHybrid: {
+                notHybrid: {
                     city: mpg_data.filter((item) => item.year === key).reduce((a,b) => (!b.hybrid) ? a+b.city_mpg : a, 0)/
                         mpg_data.filter((item) => item.year === key).filter((item) => !item.hybrid).length,
                     highway: mpg_data.filter((item) => item.year === key).reduce((a,b) => (!b.hybrid) ? a+b.highway_mpg : a, 0)/
