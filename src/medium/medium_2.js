@@ -20,9 +20,12 @@ see under the methods section
  * @param {allCarStats.ratioHybrids} ratio of cars that are hybrids
  */
 export const allCarStats = {
-    avgMpg: undefined,
-    allYearStats: undefined,
-    ratioHybrids: undefined,
+    avgMpg: {
+        city: mpg_data.reduce((a,b) => a + b.city_mpg, 0)/mpg_data.length,
+        highway: mpg_data.reduce((a,b) => a + b.highway_mpg, 0)/mpg_data.length
+    },
+    allYearStats: getStatistics(mpg_data.map(({year}) => year)),
+    ratioHybrids: mpg_data.filter(obj => obj.hybrid).length/mpg_data.length,
 };
 
 
@@ -84,6 +87,39 @@ export const allCarStats = {
  * }
  */
 export const moreStats = {
-    makerHybrids: undefined,
-    avgMpgByYearAndHybrid: undefined
+    makerHybrids: mpg_data.filter(obj => obj.hybrid).sort((a,b) => (a.make > b.make) ? 1:-1).reduce(function (prev, obj) {
+        if (!prev[0]) {
+          prev[0] = {make: '', hybrids:''};
+          prev[0].make = obj.make;
+          prev[0].hybrids = [obj.id];
+        } else {
+            if (prev[prev.length-1].make === obj.make) {
+                prev[prev.length-1].hybrids.push(obj.id);
+            } else {
+                prev.push({make: obj.make, hybrids: [obj.id]});
+            }
+        }
+        
+        return prev;
+    }, []).sort((a,b) => (a.hybrids.length < b.hybrids.length) ? 1:-1),
+    avgMpgByYearAndHybrid: mpg_data.reduce(function(prev, obj) {
+        let key = obj.year
+        if (!prev[key]) {
+            prev[key] = {
+                hybrid: {
+                    city: mpg_data.filter((item) => item.year === key).reduce((a,b) => (b.hybrid) ? a+b.city_mpg : a, 0)/
+                        mpg_data.filter((item) => item.year === key).filter((item) => item.hybrid).length,
+                    highway: mpg_data.filter((item) => item.year === key).reduce((a,b) => (b.hybrid) ? a+b.highway_mpg : a, 0)/
+                        mpg_data.filter((item) => item.year === key).filter((item) => item.hybrid).length
+                },
+                notHybrid: {
+                    city: mpg_data.filter((item) => item.year === key).reduce((a,b) => (!b.hybrid) ? a+b.city_mpg : a, 0)/
+                        mpg_data.filter((item) => item.year === key).filter((item) => !item.hybrid).length,
+                    highway: mpg_data.filter((item) => item.year === key).reduce((a,b) => (!b.hybrid) ? a+b.highway_mpg : a, 0)/
+                        mpg_data.filter((item) => item.year === key).filter((item) => !item.hybrid).length
+                }
+            }
+        }
+        return prev
+    }, {})
 };
